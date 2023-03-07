@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { Category } from '@/models/category'
+import { useOrderStore } from '@/stores/order'
+import { storeToRefs } from 'pinia'
 import { ref, onMounted, type Ref } from 'vue'
 import MenuBar from '../components/MenuBar.vue'
 
@@ -78,6 +80,10 @@ const categories: Ref<Category[]> = ref([
 
 const allCategories: Ref<Category[]> = ref([])
 
+const store = useOrderStore()
+
+const { storeActiveId } = storeToRefs(store)
+
 function processCategories(categories: Category[]) {
   categories.forEach(({ id, name, children }) => {
     if (children) {
@@ -90,20 +96,21 @@ function processCategories(categories: Category[]) {
 
 onMounted(() => {
   processCategories(categories.value)
-  console.log(allCategories.value)
 })
 </script>
 
 <template>
   <div>
-    <MenuBar :categories="categories" />
-  </div>
-  <div>
-    <select name="" id="">
-      <option v-for="category in allCategories" :key="category.id" :value="category.id">
-        {{ category.name }}
-      </option>
-    </select>
+    <div>
+      <select name="" id="">
+        <option v-for="category in allCategories" :key="category.id" :value="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <MenuBar :categories="categories" />
+    </div>
   </div>
 </template>
 

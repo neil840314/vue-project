@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Category } from '@/models/category'
 import { ref, type PropType, type Ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useOrderStore } from '@/stores/order'
 
 const props = defineProps({
   activeId: {
@@ -18,8 +20,17 @@ const emit = defineEmits<{
 
 const subActiveId: Ref<string> = ref('')
 
-function emitCurrentType(id: string) {
+const store = useOrderStore()
+
+const { storeActiveId } = storeToRefs(store)
+
+function emitCurrentType(id: string, isLast: boolean) {
+  // storeActiveId.value.push(id)
   console.log(id)
+  storeActiveId.value = id
+  if (isLast) {
+    localStorage.setItem('active', id)
+  }
   if (id !== props.activeId) {
     emit('update:activeId', id)
   } else {
@@ -30,8 +41,15 @@ function emitCurrentType(id: string) {
 
 <template>
   <div>
-    <div class="title-bar" @click="emitCurrentType(props.category.id)">
-      <p :class="{ active: subActiveId === props.category.id && !props.category.children }">
+    <div class="title-bar" @click="emitCurrentType(props.category.id, !props.category.children)">
+      <p
+        :class="{
+          active:
+            props.activeId === props.category.id &&
+            !props.category.children &&
+            storeActiveId === props.category.id
+        }"
+      >
         {{ props.category.name }}
       </p>
       <a v-if="props.category.children" class="toggle-icon" href="#">
